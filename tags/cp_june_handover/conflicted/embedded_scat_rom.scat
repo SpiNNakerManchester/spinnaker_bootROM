@@ -1,0 +1,51 @@
+;TODO Check and modify before final commit
+
+ROM_LOAD 0xffff0000						 ; [load region], needs to be above 968 TCM memory
+{
+	ROM_EXEC 0xffff0000                  ;[exec region & root region]
+    {        
+        start.o	 (start, +FIRST)  		 ; Core initialisation inc TCM enable
+        ram_test.o (ramtest)			 ; Need to run TCM tests in ROM before scattering
+        * (InRoot$$Sections)             ; all that should be placed in root region, detailed below
+        		                         ;__main.o                         ; C Library entry point, must be in a root region
+                                         ;__scatter.o
+                                         ;__scatter_copy.o
+                                         ;__scatter_zi.o
+                                         ;*  (Region$$Table)                ; this section must be in a root region 
+                                         ;*  (ZISection$$Table)            ; this section must be in a root region
+    }
+    
+    I-TCM 0x0000 0x8000				; [exec region], built at 0x100 to avoid vector space
+	{								; assumes 64K I-TCM     
+		vectors.o (vectors, +FIRST)	;
+		* (+RO)						; any remaining code inc C lib.
+	}
+
+
+	D-TCM 0x0400000 0x8000			; [exec region], beginning of data TCM at 64MB, (note top half reserved for FF)
+	{
+		* (+RW,+ZI)
+	}
+
+	HEAP +0 EMPTY 0x500				; continus the RW & ZI region above, maybe in D-TCM as well
+	{								; depends on how much RW&ZI cost
+
+	
+	}
+
+	STACKS +0 EMPTY 0x500			; ||Image$$STACKS$$ZI$$Limit|| = HEAP limit + 0x300
+	{
+	
+	}
+
+
+	SDRAM 0x70000000 EMPTY 0x8000000	
+	{
+	
+	}
+
+	SYSRAM 0xF5007B00 0x50			; size of SYSRAM changes in SpiNNaker 2
+	{
+       	copier.o(copier)        	; have the copier function in specific place in SysRAM
+	}
+}

@@ -1,0 +1,32 @@
+;;; 
+
+ROM_LOAD 0				 ; [load region], needs to be above 968 TCM memory
+{
+    I-TCM 0x0 0x8000                     ; [exec region], built at 0x100 to avoid vector space
+    {                                    ; assumes 64K I-TCM     
+        vectors.o (Vect, +FIRST) 	 ;	
+        start.o	 (start)  	 	 ; Core initialisation inc TCM enable
+        * (InRoot$$Sections)             ; all that should be placed in root region, detailed below
+        * (+RO)                          ; any remaining code inc C lib.
+    }
+
+    D-TCM 0x0400000  0x10000             ; [exec region], beginning of data TCM at 64MB
+    {
+        * (+RW,+ZI)                      ; notice that if the size is changed, something should be changed
+    }                                    ; in memory.txt, armulate.dsc and option.s as well
+     
+    HEAP +0 EMPTY 0x500                  ; continus the RW & ZI region above, maybe in D-TCM as well
+    {                                    ; depends on how much RW&ZI cost
+
+    }
+                                       
+    STACKS +0 EMPTY 0x500                ; ||Image$$STACKS$$ZI$$Limit|| = HEAP limit + 0x300
+    {                                     
+
+    }
+    
+    SDRAM 0x50000000 EMPTY  0x10000000
+    {
+
+    }
+}

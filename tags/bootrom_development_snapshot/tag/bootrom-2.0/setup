@@ -1,0 +1,11 @@
+
+set -a 
+
+ARMBIN=/home/amulinks/spinnaker/tools/RVDS40/RVCT/Programs/4.0/400/linux-pentium
+ARMLIB=/home/amulinks/spinnaker/tools/RVDS40/RVCT/Data/4.0/400/lib
+ARMINC=/home/amulinks/spinnaker/tools/RVDS40/RVCT/Data/4.0/400/include/unix
+
+LM_LICENSE_FILE=8224@cadmaster.cs.man.ac.uk
+# LM_LICENSE_FILE=/home/amulinks/spinnaker/licence/licence-arm-2010
+
+PATH=$ARMBIN:$PATH

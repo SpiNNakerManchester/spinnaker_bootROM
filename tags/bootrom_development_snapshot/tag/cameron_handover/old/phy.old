@@ -1,0 +1,74 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; phy.s file 
+; 
+; used in the device drivers' coding
+; created by mukaram khan and xin jin
+; 
+; SpiNNaker Project, The University of Manchester
+; Copyright (C) SpiNNaker Project, 2008. All rights reserved.
+;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;       
+        GET ../src/option.s     
+ 		
+ 		;IMPORT  procChipStatus
+ 		
+ 		EXPORT	initPhy
+ 		EXPORT  testPhy
+ 		EXPORT	detectPhy
+ 		
+ 		AREA 	ethernet, CODE, READONLY
+        ENTRY  
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; PHY INIT
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+initPhy
+								;STMFD	SP!, {R4, R5, LR}
+    	LDR		R2,	  =PHY_BASE
+    	; Bring the PHY out of reset
+		MOV		R1,	#0x50				 ;enabling bit 6 i.e. autonegotiation is done and bit 4 link down
+		STR		R1, [R2, #PHY_INT_MASK]
+       	LDR		R1,   =0x000F
+    	STR		R1,  [R2, #PHY_CONTROL]  ;
+		MOV		PC, LR			;LDMFD	SP!, {R4, R5, PC}	
+    	
+     	
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; PHY TEST
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+testPhy
+		LDR	 	R2, =PHY_BASE
+		LDR		R3,	[R2, #PHY_CONTROL]
+		LDR		R1,	=0xABCD
+		STR		R1, [R2, #PHY_CONTROL]
+    	LDR		R0, [R2, #PHY_CONTROL]
+    	STR		R3, [R2, #PHY_CONTROL]   	;restoring the old value
+    	CMP		R1, R0
+    	MOVNE	R0, #0x0			  		;return 0 i.e. fail
+    	BNE		outtphy
+     	MOV	 	R0, #0x1
+    	;LDR		R2, =procChipStatus
+    	;LDR		R1, [R2]
+    	;ORR		R1, R1, #(0x1 << 15) ;saving status of phy at bit 15 
+    	;STR		R1, [R2]
+    	;ORR	 	R11, R11, #(0x1 << 15) ;saving status of phy at bit 15 
+outtphy  	
+		MOV		PC,   LR
+ 
+		                  
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; PHY DETECT
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+detectPhy
+		LDR	 	R2, =PHY_BASE
+		LDR		R3,	[R2, #PHY_ID]
+		LDR		R1, =0xABCD
+		CMP		R3, R1
+		MOVNE	R0, #0x0
+    	MOVEQ	R0, #0x1				  ;return false
+outdphy  	
+		MOV		PC,   LR
+
+    	END
+
+   
