@@ -8,11 +8,14 @@ There is no further development of this code.
 This repository contains the code used to generate the contents of the
 SpiNNaker on-chip boot ROM.
 
-The SpiNNaker low-level software design document contain a description
+The SpiNNaker low-level software design document contains a description
 of the SpiNNaker boot sequence. This document can be downloaded from:
 
 http://spinnakermanchester.github.io/docs/SpiNNsoft_designV0.01.pdf
 
+*Note*: This code was imported from an svn checked-out copy, not the
+repository. Apparently, the original svn repository is no longer
+available. Historic data is not preserved.
 
 ---------------
 Acknowledgments
