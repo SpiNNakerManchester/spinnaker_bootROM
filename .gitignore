@@ -5,7 +5,6 @@
 *.a
 *.o
 *.gas
-*.s
 *.bin
 *.elf
 *.aplx
