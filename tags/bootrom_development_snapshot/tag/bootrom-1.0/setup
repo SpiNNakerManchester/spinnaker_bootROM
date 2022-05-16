@@ -1,6 +1,0 @@
-
-set -a
-
-LM_LICENSE_FILE=/home/amulinks/spinnaker/licence/licence.arm
-
-source /home/amulinks/spinnaker/tools/rvds31/RVDS31env.posh
