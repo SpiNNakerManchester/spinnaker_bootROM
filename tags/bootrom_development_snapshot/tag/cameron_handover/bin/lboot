@@ -1,4 +1,0 @@
-sreset
-lboot 1 yboot-nn.bin
-lboot 2 yboot-nn.bin
-lboot 3 yboot-nn.bin
