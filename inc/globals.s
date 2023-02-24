@@ -1,14 +1,26 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; globals.s - contains definitions of hardware and software parameters mirroring those in
 ; globals.h. Any changes made here should be carefully checked against changes in the
-; latter file. 
+; latter file.
 ;
 ;
 ; Created by Mukaram Khan and Xin Jin
 ; Modified by Thomas Sharp and Cameron Patterson
-; 
-; SpiNNaker Project, The University of Manchester
-; Copyright (C) SpiNNaker Project, 2008. All rights reserved.
+;
+; Copyright (c) 2008 The University of Manchester
+;
+; Licensed under the Apache License, Version 2.0 (the "License");
+; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
+;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 
@@ -60,14 +72,14 @@ TEST_CHIP_CLK_MUX_CTRL_SETUP	EQU		0x58000165	; CPUs clocked at PLL1 / 1 = 160MHz
 													; SDRAM clocked at PLL2 / 1 = 260MHz
 													; Router clocked at PLL1 / 2 = 80MHz
 													; SysAHB clocked at PLL1 / 2 = 80HMz
- 
-WATCHDOG_RESET_CODE			EQU		0x4			; 0b100 - signifies the watchdog reset condition 
+
+WATCHDOG_RESET_CODE			EQU		0x4			; 0b100 - signifies the watchdog reset condition
 DMA_CMD_MASTER_CRC_CHK		EQU		0x0018008C	; DMA control word:  dir=1 (tcm to sys), CRC=1 (write), len=(35*4)= 140 bytes
 DMA_CMD_BLOCK_CRC_CHK		EQU		0x00180000	; DMA control word:  dir=1 (tcm to sys), CRC=1 (write) (length is added in main code)
 DMA_TRANSFER_ACTIVE			EQU		0x1			; bit position remains high while DMA transfer is in progress
-DMA_TRANSFER_PAUSED			EQU		0x2			; bit position set high following a DMA transfer error 
+DMA_TRANSFER_PAUSED			EQU		0x2			; bit position set high following a DMA transfer error
 
-IVB_MAGIC_NUMBER			EQU		0xC0FFEE18	; magic number used as a crude check of correct ITCM population on boot	
+IVB_MAGIC_NUMBER			EQU		0xC0FFEE18	; magic number used as a crude check of correct ITCM population on boot
 
 IVB_IMAGE_STARTLENGTH		EQU		0x00
 IVB_IMAGE_LENGTH			EQU		0x04

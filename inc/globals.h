@@ -1,14 +1,26 @@
 /*****************************************************************************************
-*	globals.h - contains definitions of hardware and software parameters mirroring those 
+*	globals.h - contains definitions of hardware and software parameters mirroring those
 *	in globals.s. Any changes made here should be carefully checked against changes in the
-*	latter file. 
+*	latter file.
 *
 *
 *	Created by Mukaram Khan and Xin Jin
-*	Chopped Hacked and Sliced by Cameron Patterson and Thomas Sharp   
+*	Chopped Hacked and Sliced by Cameron Patterson and Thomas Sharp
 *
-*	SpiNNaker Project, The University of Manchester
-*	Copyright (C) SpiNNaker Project, 2008. All rights reserved.
+* Copyright (c) 2008 The University of Manchester
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
 *****************************************************************************************/
 
 #ifndef GLOBALS_H
@@ -66,13 +78,13 @@ typedef unsigned char uchar;
 #endif
 
 #define SECURITY_CODE				0x5EC00000
-#define IVB_MAGIC_NUMBER			0xC0FFEE18			// magic number used as a crude check of correct ITCM population on boot	
+#define IVB_MAGIC_NUMBER			0xC0FFEE18			// magic number used as a crude check of correct ITCM population on boot
 #define MAGIC_NUMBER				IVB_MAGIC_NUMBER	// for more general use without the IVB label
 
 #define SD_RAM_BASE					0x70000000
 
 #define SYS_RAM_BASE				0xF5000000
-				
+
 #ifdef SPINNAKER2					// Spinnaker2 has 32kB of SysRAM
 #define	SYS_RAM_SIZE				0x8000
 #endif
@@ -95,7 +107,7 @@ typedef unsigned char uchar;
 
 
 
-/* ------ MEMORY ALLOCATIONS (NB: any changes must also be applied to globals.s) ------ */ 
+/* ------ MEMORY ALLOCATIONS (NB: any changes must also be applied to globals.s) ------ */
 
 // Space for IP/MAC address parameters
 #define ETH_PARAMS_SIZE				0x20 // 32 bytes for IP/MAC addresses
@@ -105,7 +117,7 @@ typedef unsigned char uchar;
 #define	MAILBOX_SIZE				(0x4 * sizeof(int))
 #define MAILBOX_BASE				(ETH_PARAMS_BASE - MAILBOX_SIZE)
 
-// At boot the SDRAM is probed and size detected and errors spotted by sampling at 2^x word addresses. 
+// At boot the SDRAM is probed and size detected and errors spotted by sampling at 2^x word addresses.
 // 1st word == SDRAM memory size (bytes). 2nd word - errors detected bits [28:1] error at word (2^bitid).  bit 30/31=intense low/high fail.
 #define DETECTED_SDRAM_INFO_SIZE	(0x2 * sizeof(int))
 #define DETECTED_SDRAM_INFO_BASE	(MAILBOX_BASE - DETECTED_SDRAM_INFO_SIZE)
@@ -341,7 +353,7 @@ typedef unsigned char uchar;
 #define SER_IN						(SER_IN_0 + SER_IN_1)
 
 
-		
+
 /* ------------------------------- FLOOD-FILL CONTROLS -------------------------------- */
 #define FF_START					0x1
 #define FF_BLOCK_START				0x2
@@ -414,7 +426,7 @@ typedef unsigned char uchar;
 #define SPINN_PROTO_V1(frame)		((frame[10] & 0xFFFF) == SPINNPROTVERSION)
 
 #define SPINN_INSTRCTN(frame)		(frame[11] & 0xFFFF)
-#define SPINN_INSTRCTN_OP_1(frame)	(frame[12] & 0xFFFF) 
+#define SPINN_INSTRCTN_OP_1(frame)	(frame[12] & 0xFFFF)
 #define SPINN_INSTRCTN_OP_2(frame)	(frame[13] & 0xFFFF)
 #define SPINN_DATA_LENGTH(frame)	(frame[13] & 0xFFFF) // Same as OP_2
 #define SPINN_INSTRCTN_OP_3(frame)	(frame[14])
@@ -434,8 +446,8 @@ typedef unsigned char uchar;
 #define PHY_AUTO_NEG_100FD_INIT		0x101			// Force PHY to advertise 100Mb/s Full duplex only & Selector Field IEEE803.3
 #define PHY_RESTART_AUTONEG			0x1200			// Enable Auto-negotiate & restart autonegotiation
 #define ROUTER_CTRL_INIT			0x2F2F0007		// Wait1 (before ER) and Wait2 (Er before drop) to 2F=108 cycles each
-													// enable routing, and dump/error interrupt generation + set myprocID as mon 
-#define TIMER1_LOAD_INIT			0x27100;		// =160000 count down each clock cycle = gives 1000/second @ 160Mhz 
+													// enable routing, and dump/error interrupt generation + set myprocID as mon
+#define TIMER1_LOAD_INIT			0x27100;		// =160000 count down each clock cycle = gives 1000/second @ 160Mhz
 #define TIMER1_CTRL_INIT			0xE2			// enable, periodic, interrupt. Divide by 1, 32bit wrapping mode.
 
 #define VIC_CTRL_INTERRUPT_ON		0x20			// bit position 5 set high in the vector control register turns it on
@@ -455,7 +467,7 @@ typedef unsigned char uchar;
 #define CC_ERR_PACKET				0x60000000		// error received bit 30=parity and bit 29=framing.
 
 #define ETHERNET_CLR_RX_INTERRUPT	0x10			// clear a Ethernet Receive interrupt
-#define MAILBOX_FASCICLE_COPY		0x1				// indicates that we should copy data from SystemRAM block to image (not execute) 
+#define MAILBOX_FASCICLE_COPY		0x1				// indicates that we should copy data from SystemRAM block to image (not execute)
 #define MAILBOX_FASCICLE_EXECUTE	0x2				// indicates that we should copy image into ITCM and execute
 
 
@@ -466,8 +478,8 @@ typedef unsigned char uchar;
 #define NN_PACKET_NOPAYLOAD(route)	(0x00800000 | (route << 18))   	// SPINN2 route&src moved to SAR (init as fake rte = 0b111)
 #endif
 #ifdef TEST_CHIP
-#define NN_PACKET_PAYLOAD(route)	(0x07820000 | (route << 18)) 
-#define NN_PACKET_NOPAYLOAD(route)	(0x07800000 | (route << 18)) 
+#define NN_PACKET_PAYLOAD(route)	(0x07820000 | (route << 18))
+#define NN_PACKET_NOPAYLOAD(route)	(0x07800000 | (route << 18))
 #endif
 
 #define VALID_NN_PACKET(rx_status)	((rx_status & 0xC00000)==0x800000) && !(rx_status & 0x60000000) // check noerrs rcvd & begins 0b10...
@@ -486,8 +498,8 @@ extern unsigned int tx_frame[380];
 extern unsigned int sourceMACAddressLS;
 extern unsigned int sourceMACAddressHS;
 extern unsigned int spinnakerDataSize;
-extern unsigned int destinationMACAddressLS;   
-extern unsigned int destinationMACAddressHS;       
+extern unsigned int destinationMACAddressLS;
+extern unsigned int destinationMACAddressHS;
 extern unsigned int macDestAddressConfigured;
 extern unsigned int sourceIPAddress;
 extern unsigned int FFTarget;

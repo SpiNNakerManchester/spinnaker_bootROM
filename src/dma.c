@@ -1,9 +1,20 @@
 /*****************************************************************************************
 * 	Created by Cameron Patterson
 *
-*	SpiNNaker Project, The University of Manchester
-*	Copyright (C) SpiNNaker Project, 2008. All rights reserved.
-*****************************************************************************************/
+* Copyright (c) 2008 The University of Manchester
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 
 #include "../inc/globals.h"
@@ -19,26 +30,26 @@ unsigned int dma(unsigned int sys_NOC_address, unsigned int TCM_address,
 {
 	pointer DMA_CTRL = (unsigned int*) DMA_CTRL_BASE;
 	unsigned int returner = 0;
-	
+
 //	if(DEBUGPRINTF) printf("*** Sys: 0x%x.  TCM: 0x%x.  Len:0x%x.\n",sys_NOC_address,TCM_address,length);
-	
-	while(DMA_CTRL[DMA_CTRL_STAT] & DMA_Q_FULL) {  
+
+	while(DMA_CTRL[DMA_CTRL_STAT] & DMA_Q_FULL) {
 		// check to see whether the DMA queue is full and if we spinn to wait on new one
-		
+
 		if (DMA_CTRL[DMA_CTRL_STAT] & DMA_PAUSED) DMA_CTRL[DMA_CTRL_CTRL] = DMA_CLEAR_ERRORS;
-			// defensively clear paused transfer rather than spinn forever 		
-	} 		
-														
+			// defensively clear paused transfer rather than spinn forever
+	}
+
 	DMA_CTRL[DMA_CTRL_ADRS] = sys_NOC_address;
 	DMA_CTRL[DMA_CTRL_ADRT] = TCM_address;
 	DMA_CTRL[DMA_CTRL_DESC] = (0x1 << DMA_BURST_OFFSET) | 			// CP burst set to 1 rathen thank 4 due to Silistix DMA burst bug
 								(crc << DMA_CRC_OFFSET) |
 								(direction << DMA_DIRECTION_OFFSET) |
 								(length & 0xFFFF);
-								
-	while(DMA_CTRL[DMA_CTRL_STAT] & DMA_IN_PROGRESS);  				// Wait until the transfer has completed.  
-		
-	if (DMA_CTRL[DMA_CTRL_STAT] & DMA_PAUSED) {		
+
+	while(DMA_CTRL[DMA_CTRL_STAT] & DMA_IN_PROGRESS);  				// Wait until the transfer has completed.
+
+	if (DMA_CTRL[DMA_CTRL_STAT] & DMA_PAUSED) {
 		returner = DMA_CTRL[DMA_CTRL_STAT];
 		//#ifdef DEBUG
 		//if(PHY_PRESENT) printf("ROM DMA Error Detected - ARRGGHHH!!! - Resetting.  StatReg:0x%x\n",returner);
@@ -47,8 +58,8 @@ unsigned int dma(unsigned int sys_NOC_address, unsigned int TCM_address,
 	}
 	else {
 		returner = 0;	// send back a good status value
-		DMA_CTRL[DMA_CTRL_CTRL] = DMA_ACK_SUCCESS;  // after a successful DMA transfer, clear the done line D:clear Done Int   
+		DMA_CTRL[DMA_CTRL_CTRL] = DMA_ACK_SUCCESS;  // after a successful DMA transfer, clear the done line D:clear Done Int
 	}
-	
+
 	return returner;  // return 0 for good, and >0 if error, with status register inclusive error ID
 }

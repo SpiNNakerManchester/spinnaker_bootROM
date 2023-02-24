@@ -1,3 +1,16 @@
+; Copyright (c) 2008 The University of Manchester
+;
+; Licensed under the Apache License, Version 2.0 (the "License");
+; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
 ;-------------------------------------------------------------------------------
 ;
 ; Translate some register names & offsets
@@ -56,11 +69,11 @@ boot_wait	LDR	r0, [r7, #SYSC_MISC_C]	; Else loop on MISC_CTRL bit 1
 		B	boot_introm
 ;
 ;
-boot_serial	
+boot_serial
 		LDR		r0, =SPINNAKER2_ETH_PARAMS_BASE
 		MOV		r1, #0
 		STR		r1, [r0]	; Clear Ethernet params to permit later test of serial ROM presence
-		
+
 		MOV	r0, #SERIAL_NCS		; Config GPIO
 		STR	r0, [r7, #SYSC_IO_PORT]	; Ncs high, others low
 ;
@@ -147,7 +160,7 @@ read_block	BL	serial_read16		; Get word count to r4
 		ADREQ	lr, scan_rom		; Return (if ever) to scan_rom
 ;		MOVEQ	pc, r3			; Go to exec addr
 		BXEQ	r3				; CP replaced above with new version to stop warnings in build
-		
+
 ;
 ser_loop	BL	serial_read32
 		STR	r0, [r3], #4
