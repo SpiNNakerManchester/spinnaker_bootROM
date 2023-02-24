@@ -1,3 +1,16 @@
+; Copyright (c) 1999 The University of Manchester
+;
+; Licensed under the Apache License, Version 2.0 (the "License");
+; you may not use this file except in compliance with the License.
+; You may obtain a copy of the License at
+;
+;     http://www.apache.org/licenses/LICENSE-2.0
+;
+; Unless required by applicable law or agreed to in writing, software
+; distributed under the License is distributed on an "AS IS" BASIS,
+; WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+; See the License for the specific language governing permissions and
+; limitations under the License.
 ;-------------------------------------------------------------------------------
 ;
 ; (AMULET3) RAM test program
@@ -15,7 +28,7 @@
 ; Address pattern is 'March C+' (section 3.2.6):
 ; +/-(w0); +(r0,w1,r1); +(r1,w0,r0);
 ;          -(r0,w1,r1); -(r1,w0,r0).
-; 
+;
 ; 0,1 patterns are 32-bit true and inverse sets:
 ;
 ; 0000000000...0000 1111111111...1111
@@ -42,7 +55,7 @@
 ;
 		export	ram_test_c
 		export	ram_test
-		
+
 ;
 ;
 ; C Language interface
@@ -158,7 +171,7 @@ pat_loop	adr	r0, pat_end		; Point past last pattern
 		bgt	%b44
 ;
 ; -(r1,w0,r0).
-;	
+;
 		mov	r5, r1
 ;
 55		ldmdb	r5, {r0, r10}		; read back
@@ -175,7 +188,7 @@ pat_loop	adr	r0, pat_end		; Point past last pattern
 		cmp	r5, r4
 		bgt	%b55
 ;
-		
+
 		b	pat_loop
 ;
 ;

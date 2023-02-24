@@ -1,10 +1,20 @@
 /*****************************************************************************************
 * 	Created by Steve Temple
-*   Modified by Thomas Sharp   
+*   Modified by Thomas Sharp
 *
-*	SpiNNaker Project, The University of Manchester
-*	Copyright (C) SpiNNaker Project, 2008. All rights reserved.
-* 
+* Copyright (c) 2008 The University of Manchester
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 *****************************************************************************************/
 
 
@@ -92,7 +102,7 @@ uint reg_test (const uint *vec)
 		#ifdef DEBUG
 		printf("%08x reg %08x ptr %d\n", ctrl, reg, ptr);
 		#endif
-		
+
 
 	  if ((ctrl & TEST_RST) && ((value ^ *reg) & mask))
 	    {
@@ -204,7 +214,7 @@ const uint timer_test[] =
 #ifdef SPINNAKER2
 const uint cc_test[] =
   {
-    COMMS_CTRL_BASE,    
+    COMMS_CTRL_BASE,
     0    + TEST_RST + TEST_RW + TEST_MASK, 0x90000000, 0x00ff0000,	// TCR
     //1    + TEST_RST + TEST_ZEROS + TEST_RW + TEST_REP(2),		// TDR, TKR. TS: Bug 64
     1    + TEST_RST + TEST_ZEROS + TEST_RW,						// Bugzilla 66 CP - R1 is safe to test, but not R2 (no repeat)
@@ -223,7 +233,7 @@ const uint cc_test[] =
 	0    + TEST_RST + TEST_RW + TEST_MASK, 0x80000000, 0x07ffffff, 	// TCR
 	//2    + TEST_RST + TEST_ZEROS + TEST_RW + TEST_REP(2),		// TDR, TKR. TS: Bug 64
 	2    + TEST_RST + TEST_ZEROS + TEST_RW + TEST_STOP			// Bugzilla 66 CP - R2 is safe to test, but not R3 (no repeat)
-	//4    + TEST_RST + TEST_ZEROS + TEST_REP(2),				// RDR, RKR       Bugzilla 66 CP, not safe 
+	//4    + TEST_RST + TEST_ZEROS + TEST_REP(2),				// RDR, RKR       Bugzilla 66 CP, not safe
     //7    + TEST_RST + TEST_ZEROS + TEST_RW + TEST_MASK, 0x00000001,	// TEST   Bugzilla 66 CP, not safe
     //7    + TEST_WRITE + TEST_BYTE(0x01),     				// TEST=1             Bugzilla 66 CP, not safe
 	//0    + TEST_ZEROS + TEST_RW + TEST_REP(6),		// TEST 6 regs            Bugzilla 66 CP, not safe
@@ -407,7 +417,7 @@ void test_sysram()
 	if(ram_test_c(SYS_RAM_BASE, SYS_RAM_BASE+0x20, 0xFFFFFFFF)) boot_fail(SYS_RAM_FAILURE);
 	#else
 	if(ram_test_c(SYS_RAM_BASE, FF_SPACE_BASE, 0xFFFFFFFF)) boot_fail(SYS_RAM_FAILURE);
-	#endif 
+	#endif
 }
 
 void test_sdram()
@@ -424,35 +434,35 @@ void test_sdram()
 	if(!reg_test(pl340_test))	// If PL340 test passes, test SDRAM otherwise record failure
 	{
 		init_PL340();
-		
+
 		while(dllcountdown--)					// BUGZILLA 61. CP 25/08/2010, wait for DLL to lock, or timeout
 		{ 													// BUGZILLA 61.
 			dllLocked=PL340[DLL_STATUS] & 0x00040000;		// BUGZILLA 61.
 			if (dllLocked) break;							// BUGZILLA 61.
 		}
-												
+
 		if (dllLocked)							// BUGZILLA 61. CP 25/08/2010, only run the RAM tests if DLL +ve lock
 		{
 			SD_RAM[0]=0;											// reset SDRAM position 0 as this is used for wraparound test
-		
+
 			while(word_offset<0x4000000) {							// we can have up to 0x3FFFFFF words in the max SDRAM size
 				SD_RAM[word_offset] = word_offset;					// write our test word (1 in relevant bit position) into the relevant position
 				if(SD_RAM[word_offset] == word_offset) {			// read back this value and check against what we'd written
 					if (SD_RAM[0] != word_offset) ram_size_detected <<=1;	// if readback OK & not wrap-around double the ram size we've detected so far
 				} else {											// if we don't read back the right test value
-					ram_size_detected <<=1;							// multiply the ram size we've detected so far by 2, as it read (even if in error) 
+					ram_size_detected <<=1;							// multiply the ram size we've detected so far by 2, as it read (even if in error)
 					errorcode|=word_offset;							// write a 1 in relevant 2^i position indicating fault
-				}	
+				}
 				word_offset<<=1;									// increment the offset of the word we are checking by an additional power of 2
 			}														// note we use the equivalent offset<<i to represent 2^i+1 for arithmetic simplicity
-		
+
 			if (ram_size_detected == 2) ram_size_detected=0;		// as size has not increased, then we haven't detected ANY SDRAM, so set to 0.
-		
-			if (ram_test_c(SD_RAM_BASE, SD_RAM_BASE+thorough_test_size, 0xFFFFFFFF)) errorcode|=(unsigned int)1<<30;	
+
+			if (ram_test_c(SD_RAM_BASE, SD_RAM_BASE+thorough_test_size, 0xFFFFFFFF)) errorcode|=(unsigned int)1<<30;
 																// thoroughly test the first chunk of SDRAM, if problem: error bit 30
-			if (ram_test_c(SD_RAM_BASE+(ram_size_detected*4)-thorough_test_size, SD_RAM_BASE+(ram_size_detected*4),0xFFFFFFFF)) errorcode|=(unsigned int)1<<31; 
+			if (ram_test_c(SD_RAM_BASE+(ram_size_detected*4)-thorough_test_size, SD_RAM_BASE+(ram_size_detected*4),0xFFFFFFFF)) errorcode|=(unsigned int)1<<31;
 			 													// thoroughly test the final chunk of SDRAM, if problem: error bit 31
-		
+
 			DETECTED_SDRAM_INFO[0]=(4*ram_size_detected);			// populate SYSRAM info with SDRAM size detected (in bytes)
 			DETECTED_SDRAM_INFO[1]=errorcode;						// populate info about any errors detected in our testing
 		}
@@ -465,11 +475,11 @@ void test_sdram()
 	{
 		DETECTED_SDRAM_INFO[1] = 0x1;	// Bit 0 marked indicates PL340 failure
 	}
-		
+
 	// Note: Failure of SDRAM does not constitute a failure of the chip so we do not:  //boot_fail(SD_RAM_FAILURE);
 }
 
- 
+
 /* Tests chip peripherals, recording error and disabling clock in case of failure. */
 void test_chip_peripherals()
 {

@@ -8,10 +8,21 @@
 *
 *
 *	Originally by Mukaram Khan and Xin Jin
-*	Recreated by Cameron Patterson and Thomas Sharp   
+*	Recreated by Cameron Patterson and Thomas Sharp
 *
-*	SpiNNaker Project, The University of Manchester
-*	Copyright (C) SpiNNaker Project, 2008. All rights reserved.
+* Copyright (c) 2008 The University of Manchester
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
 *****************************************************************************************/
 
 
@@ -32,8 +43,8 @@
  * 0, with the losers spin-waiting for the winner to complete. After this, all those cores
  * that have not previously been a monitor (all of them in the case of a power-on reset
  * but perhaps only certain cores in the case of a soft reset) race for monitor status.
- * Any cores that have previously been a monitor disable themselves, as they appear to 
- * have caused an erroneous soft reset. Finally, the winner records itself as a monitor. A 
+ * Any cores that have previously been a monitor disable themselves, as they appear to
+ * have caused an erroneous soft reset. Finally, the winner records itself as a monitor. A
  * return value of 1 indicates that this core is the monitor, 0 otherwise. */
 unsigned int arbitrate_monitor()
 {
@@ -41,7 +52,7 @@ unsigned int arbitrate_monitor()
 	pointer SYS_CTRL = (unsigned int*) SYS_CTRL_BASE;
 	pointer PAST_MONITORS = (unsigned int*) MONITOR_HISTORY;
 	unsigned int pid = 0x1 << PROCESSOR_ID;
-	
+
 	// At power-on, all cores race to reset monitor status records
 	if(SYS_CTRL[SYS_CTRL_RESET_CODE] == POWER_ON_RESET)
 	{
@@ -55,7 +66,7 @@ unsigned int arbitrate_monitor()
 			while(!(SYS_CTRL[SYS_CTRL_MISC_CTRL] & 0x4)); // Spin-wait on 'clear complete'
 		}
 	}
-	
+
 	// If the core was previously a monitor, it shuts itself down otherwise it arbitrates
 	if(pid & *PAST_MONITORS)
 	{
@@ -69,13 +80,13 @@ unsigned int arbitrate_monitor()
 			return 1;
 		}
 	}
-	
+
 	return 0;
 }
 
 
 /* boot_processor() is called by each core to initialise its peripherals and arbitrate for
- * monitor status. Following arbitration, the monitor tests and initialises the chip 
+ * monitor status. Following arbitration, the monitor tests and initialises the chip
  * peripherals and sets status LEDs. Finally, each core enables its interrupts and records
  * successful boot-up in the system controller CPU OK register. */
 void boot_processor()
@@ -83,28 +94,28 @@ void boot_processor()
 	pointer DMA_CTRL = (unsigned int*) DMA_CTRL_BASE;
 	pointer ETH_PARAMS = (unsigned int*) ETH_PARAMS_BASE;
 	pointer SYS_CTRL = (unsigned int*) SYS_CTRL_BASE;
-	
-	if((SYS_CTRL[SYS_CTRL_RESET_CODE] == POWER_ON_RESET) && (SYS_CTRL[SYS_CTRL_GPIO_SET]&POSTDISABLED)==0) 
+
+	if((SYS_CTRL[SYS_CTRL_RESET_CODE] == POWER_ON_RESET) && (SYS_CTRL[SYS_CTRL_GPIO_SET]&POSTDISABLED)==0)
 					// BUGZILLA 65 CP - if GPIO pin set to disable POST then do not perform processor level testing
 	{
 		test_processor_peripherals();
 	}
-	
+
 	init_comms_ctrl();
 	init_DMA_ctrl();
-	
+
 	// Winner of arbitration initialises chip peripherals. Losers just spin-wait
 	if(arbitrate_monitor())
 	{
 
-		if((SYS_CTRL[SYS_CTRL_RESET_CODE] == POWER_ON_RESET) && (SYS_CTRL[SYS_CTRL_GPIO_SET]&POSTDISABLED)==0) 	
+		if((SYS_CTRL[SYS_CTRL_RESET_CODE] == POWER_ON_RESET) && (SYS_CTRL[SYS_CTRL_GPIO_SET]&POSTDISABLED)==0)
 					// BUGZILLA 65 CP - if GPIO pin set to disable POST then do not perform system level testing
 		{
 			test_sysram();
 			test_chip_peripherals();
 			test_sdram();
 		}
-		
+
 		init_router();
 
 		// If there's a phy and Eth data is initialised from serial ROM
@@ -118,9 +129,9 @@ void boot_processor()
 				init_ethernet_MII();
 			}
 		#ifdef SPINNAKER2									// BUGZILLA 67 - S2 straps presence of SerialROM, testchip doesn't
-		}													
+		}
 		#endif
-		
+
 		SYS_CTRL[SYS_CTRL_GPIO_DIR] &= ~LEDS;
 		SYS_CTRL[SYS_CTRL_GPIO_SET] = LEDS;
 		SYS_CTRL[SYS_CTRL_GPIO_CLR] = LED_0; // Begin wiggling one LED
@@ -129,7 +140,7 @@ void boot_processor()
 		SYS_CTRL[SYS_CTRL_MISC_CTRL] |= 0x8; // Monitor reports 'setup complete'
 	}
 	else
-	{		
+	{
 		while(!(SYS_CTRL[SYS_CTRL_MISC_CTRL] & 0x8)); // Fascicles spin-wait for monitor
 	}
 
@@ -150,20 +161,20 @@ int main()
 	pointer DMA_CTRL = (unsigned int*) DMA_CTRL_BASE;	// Used to get proc ID
 	pointer SYS_CTRL = (unsigned int*) SYS_CTRL_BASE;	// Used to get monitor ID
 	pointer WATCHDOG = (unsigned int*) WATCHDOG_BASE;
-		
+
 	boot_processor();
 
 	while(1)
 	{
 		wait_for_interrupt();
-		
+
 		if(!(time % WATCHDOG_REFRESH) && MONITOR) // MONITOR compares proc and monitor IDs
 		{
 			WATCHDOG[WATCHDOG_LOCK] = 0x1ACCE551;
 			WATCHDOG[WATCHDOG_LOAD] = WATCHDOG_COUNT;
 			WATCHDOG[WATCHDOG_LOCK] = 0;
 		}
-		
+
 		#ifdef DEBUG
 			printf("Main loop %d\n", time);
 			//if (time>100) SYS_CTRL[0]=0x4;				 // CP: 20/08/2010 don't let a TLM simulation run forever
